@@ -113,6 +113,36 @@
   font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
 }
 
+.methane {
+  width: 12%;
+}
+
+.methane-value {
+  font-weight: 600;
+  color: #38a169;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+}
+
+.oil-co2 {
+  width: 12%;
+}
+
+.oil-co2-value {
+  font-weight: 600;
+  color: #805ad5;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+}
+
+.temp-change {
+  width: 12%;
+}
+
+.temp-change-value {
+  font-weight: 600;
+  color: #dd6b20;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+}
+
 .iso-code {
   width: 12%;
   text-align: center;

@@ -55,6 +55,9 @@ export const processCountriesData = (data: CO2Data): ProcessedCountry[] => {
     let latestYear: number | undefined;
     let latestCO2: number | undefined;
     let latestCO2PerCapita: number | undefined;
+    let latestMethane: number | undefined;
+    let latestOilCO2: number | undefined;
+    let latestTempChange: number | undefined;
 
     const validData = countryData.data.filter(
       (yearData) => yearData.population && yearData.population > 0
@@ -72,6 +75,9 @@ export const processCountriesData = (data: CO2Data): ProcessedCountry[] => {
       latestYear = latestData.year;
       latestCO2 = latestData.co2;
       latestCO2PerCapita = latestData.co2_per_capita;
+      latestMethane = latestData.methane;
+      latestOilCO2 = latestData.oil_co2;
+      latestTempChange = latestData.temperature_change_from_co2;
     }
 
     countries.push({
@@ -81,6 +87,9 @@ export const processCountriesData = (data: CO2Data): ProcessedCountry[] => {
       latestYear: latestYear,
       co2: latestCO2,
       co2_per_capita: latestCO2PerCapita,
+      methane: latestMethane,
+      oil_co2: latestOilCO2,
+      temperature_change_from_co2: latestTempChange,
     });
   }
 

@@ -7,3 +7,36 @@ body {
   padding: 2rem;
   text-align: center;
 }
+
+.table-container-wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.table-controls {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+  padding: 0 20px;
+}
+
+.column-selector-button {
+  background: #0066cc;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.column-selector-button:hover {
+  background: #0052a3;
+}
+
+.column-selector-button:active {
+  transform: translateY(1px);
+}

@@ -3,6 +3,9 @@ export interface YearlyData {
   population?: number;
   co2?: number;
   co2_per_capita?: number;
+  methane?: number;
+  oil_co2?: number;
+  temperature_change_from_co2?: number;
 }
 
 export interface CountryData {
@@ -21,4 +24,18 @@ export interface ProcessedCountry {
   latestYear?: number;
   co2?: number;
   co2_per_capita?: number;
+  methane?: number;
+  oil_co2?: number;
+  temperature_change_from_co2?: number;
+}
+
+export interface ColumnOption {
+  id: keyof ProcessedCountry;
+  label: string;
+  unit?: string;
+  defaultVisible: boolean;
+}
+
+export interface ColumnConfig {
+  [key: string]: boolean;
 }

@@ -1,9 +1,10 @@
 import React from 'react';
-import type { ProcessedCountry } from '../../types/types';
+import type { ProcessedCountry, ColumnConfig } from '../../types/types';
 import './Table.css';
 
 interface TableProps {
   countries: ProcessedCountry[];
+  visibleColumns: ColumnConfig;
 }
 
 const formatNumber = (num: number): string => {
@@ -18,10 +19,124 @@ const formatCO2PerCapita = (value: number): string => {
   return value.toFixed(2);
 };
 
-export const Table: React.FC<TableProps> = ({ countries }) => {
-  const validCountries = countries
-    .filter((country) => country.name && country.population)
-    .sort((a, b) => (b.population || 0) - (a.population || 0));
+const formatMethane = (value: number): string => {
+  return new Intl.NumberFormat('en-US').format(value);
+};
+
+const formatOilCO2 = (value: number): string => {
+  return formatCO2(value);
+};
+
+const formatTempChange = (value: number): string => {
+  return value.toFixed(3);
+};
+
+export const Table: React.FC<TableProps> = ({ countries, visibleColumns }) => {
+  const validCountries = countries.filter(
+    (country) => country.name && country.population
+  );
+
+  const columnDefinitions: Record<
+    string,
+    { header: string; className: string }
+  > = {
+    name: { header: 'Name', className: 'country-name' },
+    isoCode: { header: 'ISO Code', className: 'iso-code' },
+    latestYear: { header: 'Year', className: 'latest-year' },
+    population: { header: 'Population', className: 'population' },
+    co2: { header: 'CO₂', className: 'co2' },
+    co2_per_capita: { header: 'CO₂ Per Capita', className: 'co2-per-capita' },
+    methane: { header: 'Methane', className: 'methane' },
+    oil_co2: { header: 'Oil CO₂', className: 'oil-co2' },
+    temperature_change_from_co2: {
+      header: 'Temp Change',
+      className: 'temp-change',
+    },
+  };
+
+  const getVisibleColumnKeys = () => {
+    return Object.keys(columnDefinitions).filter(
+      (key) => visibleColumns[key] === true
+    );
+  };
+
+  const visibleColumnKeys = getVisibleColumnKeys();
+
+  const renderCellContent = (country: ProcessedCountry, columnKey: string) => {
+    switch (columnKey) {
+      case 'name':
+        return <span className="country-name-text">{country.name}</span>;
+
+      case 'isoCode':
+        return country.isoCode ? (
+          <span className="iso-code-badge">{country.isoCode}</span>
+        ) : (
+          <span className="no-data">N/A</span>
+        );
+
+      case 'latestYear':
+        return country.latestYear ? (
+          <span className="year-value">{country.latestYear}</span>
+        ) : (
+          <span className="no-data">N/A</span>
+        );
+
+      case 'population':
+        return country.population ? (
+          <span className="population-value">
+            {formatNumber(country.population)}
+          </span>
+        ) : (
+          <span className="no-data">N/A</span>
+        );
+
+      case 'co2':
+        return country.co2 !== undefined && country.co2 !== null ? (
+          <span className="co2-value">{formatCO2(country.co2)}</span>
+        ) : (
+          <span className="no-data">N/A</span>
+        );
+
+      case 'co2_per_capita':
+        return country.co2_per_capita !== undefined &&
+          country.co2_per_capita !== null ? (
+          <span className="co2-per-capita-value">
+            {formatCO2PerCapita(country.co2_per_capita)}
+          </span>
+        ) : (
+          <span className="no-data">N/A</span>
+        );
+
+      case 'methane':
+        return country.methane !== undefined && country.methane !== null ? (
+          <span className="methane-value">
+            {formatMethane(country.methane)}
+          </span>
+        ) : (
+          <span className="no-data">N/A</span>
+        );
+
+      case 'oil_co2':
+        return country.oil_co2 !== undefined && country.oil_co2 !== null ? (
+          <span className="oil-co2-value">{formatOilCO2(country.oil_co2)}</span>
+        ) : (
+          <span className="no-data">N/A</span>
+        );
+
+      case 'temperature_change_from_co2':
+        return country.temperature_change_from_co2 !== undefined &&
+          country.temperature_change_from_co2 !== null ? (
+          <span className="temp-change-value">
+            {formatTempChange(country.temperature_change_from_co2)}°C
+          </span>
+        ) : (
+          <span className="no-data">N/A</span>
+        );
+
+      default:
+        return <span className="no-data">N/A</span>;
+    }
+  };
 
   return (
     <div className="table-container">
@@ -35,16 +150,14 @@ export const Table: React.FC<TableProps> = ({ countries }) => {
         <table className="countries-table">
           <thead>
             <tr>
-              <th className="country-name">Name</th>
-              <th className="iso-code">ISO Code</th>
-              <th className="latest-year">Year</th>
-              <th className="population">Population</th>
-              <th className="co2">
-                CO<sub>2</sub>
-              </th>
-              <th className="co2-per-capita">
-                CO<sub>2</sub> Per Capita
-              </th>
+              {visibleColumnKeys.map((columnKey) => (
+                <th
+                  key={columnKey}
+                  className={columnDefinitions[columnKey]?.className}
+                >
+                  {columnDefinitions[columnKey]?.header}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
@@ -53,49 +166,14 @@ export const Table: React.FC<TableProps> = ({ countries }) => {
                 key={country.name}
                 className={index % 2 === 0 ? 'even' : 'odd'}
               >
-                <td className="country-name">
-                  <span className="country-name-text">{country.name}</span>
-                </td>
-                <td className="iso-code">
-                  {country.isoCode ? (
-                    <span className="iso-code-badge">{country.isoCode}</span>
-                  ) : (
-                    <span className="no-data">N/A</span>
-                  )}
-                </td>
-                <td className="latest-year">
-                  {country.latestYear ? (
-                    <span className="year-value">{country.latestYear}</span>
-                  ) : (
-                    <span className="no-data">N/A</span>
-                  )}
-                </td>
-                <td className="population">
-                  {country.population ? (
-                    <span className="population-value">
-                      {formatNumber(country.population)}
-                    </span>
-                  ) : (
-                    <span className="no-data">N/A</span>
-                  )}
-                </td>
-                <td className="co2">
-                  {country.co2 !== undefined && country.co2 !== null ? (
-                    <span className="co2-value">{formatCO2(country.co2)}</span>
-                  ) : (
-                    <span className="no-data">N/A</span>
-                  )}
-                </td>
-                <td className="co2-per-capita">
-                  {country.co2_per_capita !== undefined &&
-                  country.co2_per_capita !== null ? (
-                    <span className="co2-per-capita-value">
-                      {formatCO2PerCapita(country.co2_per_capita)}
-                    </span>
-                  ) : (
-                    <span className="no-data">N/A</span>
-                  )}
-                </td>
+                {visibleColumnKeys.map((columnKey) => (
+                  <td
+                    key={columnKey}
+                    className={columnDefinitions[columnKey]?.className}
+                  >
+                    {renderCellContent(country, columnKey)}
+                  </td>
+                ))}
               </tr>
             ))}
           </tbody>
