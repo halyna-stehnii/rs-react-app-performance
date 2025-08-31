@@ -7,6 +7,7 @@ import { useCO2Countries } from './hooks/useCO2Data';
 import { useColumnSelection } from './hooks/useColumnSelection';
 import { useYearSelection } from './hooks/useYearSelection';
 import { useCountrySearch } from './hooks/useCountrySearch';
+import { useSorting } from './hooks/useSorting';
 import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary';
 import { ErrorFallback } from './components/ErrorFallBack/ErrorFallback';
 import { LoadingSpinner } from './components/LoadingSpinner/LoadingSpinner';
@@ -28,6 +29,9 @@ const CountriesTableContainer = () => {
 
   const { searchTerm, filteredCountries, handleSearchChange } =
     useCountrySearch(countries);
+
+  const { sortedCountries, sortConfig, handleSort } =
+    useSorting(filteredCountries);
 
   return (
     <div className="table-container-wrapper">
@@ -52,9 +56,11 @@ const CountriesTableContainer = () => {
       </div>
 
       <Table
-        countries={filteredCountries}
+        countries={sortedCountries}
         visibleColumns={visibleColumns}
         searchTerm={searchTerm}
+        sortConfig={sortConfig}
+        onSort={handleSort}
       />
 
       <ColumnModal

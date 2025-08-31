@@ -1,11 +1,14 @@
 import React from 'react';
 import type { ProcessedCountry, ColumnConfig } from '../../types/types';
+import type { SortField, SortConfig } from '../../hooks/useSorting';
 import './Table.css';
 
 interface TableProps {
   countries: ProcessedCountry[];
   visibleColumns: ColumnConfig;
   searchTerm?: string;
+  sortConfig?: SortConfig;
+  onSort?: (field: SortField) => void;
 }
 
 const formatNumber = (num: number): string => {
@@ -36,6 +39,8 @@ export const Table: React.FC<TableProps> = ({
   countries,
   visibleColumns,
   searchTerm,
+  sortConfig,
+  onSort,
 }) => {
   const validCountries = countries.filter(
     (country) => country.name && country.population
@@ -66,6 +71,34 @@ export const Table: React.FC<TableProps> = ({
   };
 
   const visibleColumnKeys = getVisibleColumnKeys();
+
+  const getSortableFields = (): SortField[] => ['name', 'population'];
+
+  const isSortableColumn = (columnKey: string): columnKey is SortField => {
+    return getSortableFields().includes(columnKey as SortField);
+  };
+
+  const getSortIcon = (columnKey: string) => {
+    if (!isSortableColumn(columnKey) || !sortConfig) {
+      return null;
+    }
+
+    if (sortConfig.field !== columnKey) {
+      return <span className="sort-icon sort-icon-neutral">↕</span>;
+    }
+
+    return (
+      <span className={`sort-icon sort-icon-active`}>
+        {sortConfig.direction === 'asc' ? '↑' : '↓'}
+      </span>
+    );
+  };
+
+  const handleColumnClick = (columnKey: string) => {
+    if (isSortableColumn(columnKey) && onSort) {
+      onSort(columnKey);
+    }
+  };
 
   const renderCellContent = (country: ProcessedCountry, columnKey: string) => {
     switch (columnKey) {
@@ -155,14 +188,31 @@ export const Table: React.FC<TableProps> = ({
         <table className="countries-table">
           <thead>
             <tr>
-              {visibleColumnKeys.map((columnKey) => (
-                <th
-                  key={columnKey}
-                  className={columnDefinitions[columnKey]?.className}
-                >
-                  {columnDefinitions[columnKey]?.header}
-                </th>
-              ))}
+              {visibleColumnKeys.map((columnKey) => {
+                const isSortable = isSortableColumn(columnKey);
+                const headerClass = `${columnDefinitions[columnKey]?.className}${isSortable ? ' sortable-header' : ''}`;
+
+                return (
+                  <th
+                    key={columnKey}
+                    className={headerClass}
+                    onClick={() => handleColumnClick(columnKey)}
+                    style={isSortable ? { cursor: 'pointer' } : undefined}
+                    title={
+                      isSortable
+                        ? `Click to sort by ${columnDefinitions[columnKey]?.header}`
+                        : undefined
+                    }
+                  >
+                    <div className="header-content">
+                      <span className="header-text">
+                        {columnDefinitions[columnKey]?.header}
+                      </span>
+                      {isSortable && getSortIcon(columnKey)}
+                    </div>
+                  </th>
+                );
+              })}
             </tr>
           </thead>
           <tbody>
