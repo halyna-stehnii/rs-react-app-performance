@@ -27,6 +27,7 @@ export interface ProcessedCountry {
   methane?: number;
   oil_co2?: number;
   temperature_change_from_co2?: number;
+  year?: number;
 }
 
 export interface ColumnOption {

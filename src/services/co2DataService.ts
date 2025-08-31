@@ -1,4 +1,4 @@
-import type { CO2Data, ProcessedCountry } from '../types/types';
+import type { CO2Data, ProcessedCountry, YearlyData } from '../types/types';
 
 let dataCache: CO2Data | null = null;
 let dataPromise: Promise<CO2Data> | null = null;
@@ -43,7 +43,10 @@ export const fetchCO2Data = async (): Promise<CO2Data> => {
   return dataPromise;
 };
 
-export const processCountriesData = (data: CO2Data): ProcessedCountry[] => {
+export const processCountriesData = (
+  data: CO2Data,
+  targetYear?: number
+): ProcessedCountry[] => {
   const countries: ProcessedCountry[] = [];
 
   for (const [countryName, countryData] of Object.entries(data)) {
@@ -51,6 +54,7 @@ export const processCountriesData = (data: CO2Data): ProcessedCountry[] => {
       continue;
     }
 
+    let targetData: YearlyData | undefined;
     let latestPopulation: number | undefined;
     let latestYear: number | undefined;
     let latestCO2: number | undefined;
@@ -64,20 +68,31 @@ export const processCountriesData = (data: CO2Data): ProcessedCountry[] => {
     );
 
     if (validData.length > 0) {
-      let latestData = validData[0];
-      for (const yearData of validData) {
-        if (yearData.year > latestData.year) {
-          latestData = yearData;
+      if (targetYear) {
+        targetData = validData.find((yearData) => yearData.year === targetYear);
+        if (!targetData) {
+          targetData = validData.reduce((closest, current) => {
+            const closestDiff = Math.abs(closest.year - targetYear);
+            const currentDiff = Math.abs(current.year - targetYear);
+            return currentDiff < closestDiff ? current : closest;
+          });
+        }
+      } else {
+        targetData = validData[0];
+        for (const yearData of validData) {
+          if (yearData.year > targetData.year) {
+            targetData = yearData;
+          }
         }
       }
 
-      latestPopulation = latestData.population;
-      latestYear = latestData.year;
-      latestCO2 = latestData.co2;
-      latestCO2PerCapita = latestData.co2_per_capita;
-      latestMethane = latestData.methane;
-      latestOilCO2 = latestData.oil_co2;
-      latestTempChange = latestData.temperature_change_from_co2;
+      latestPopulation = targetData?.population;
+      latestYear = targetData?.year;
+      latestCO2 = targetData?.co2;
+      latestCO2PerCapita = targetData?.co2_per_capita;
+      latestMethane = targetData?.methane;
+      latestOilCO2 = targetData?.oil_co2;
+      latestTempChange = targetData?.temperature_change_from_co2;
     }
 
     countries.push({
@@ -90,13 +105,33 @@ export const processCountriesData = (data: CO2Data): ProcessedCountry[] => {
       methane: latestMethane,
       oil_co2: latestOilCO2,
       temperature_change_from_co2: latestTempChange,
+      year: latestYear,
     });
   }
 
   return countries;
 };
 
-export const getCountriesData = async (): Promise<ProcessedCountry[]> => {
+export const getCountriesData = async (
+  targetYear?: number
+): Promise<ProcessedCountry[]> => {
   const rawData = await fetchCO2Data();
-  return processCountriesData(rawData);
+  return processCountriesData(rawData, targetYear);
+};
+
+export const getAvailableYears = async (): Promise<number[]> => {
+  const rawData = await fetchCO2Data();
+  const yearsSet = new Set<number>();
+
+  for (const countryData of Object.values(rawData)) {
+    if (countryData?.data && Array.isArray(countryData.data)) {
+      countryData.data.forEach((yearData) => {
+        if (yearData.population && yearData.population > 0) {
+          yearsSet.add(yearData.year);
+        }
+      });
+    }
+  }
+
+  return Array.from(yearsSet).sort((a, b) => b - a);
 };

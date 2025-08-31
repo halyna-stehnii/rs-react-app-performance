@@ -161,21 +161,22 @@ export const Table: React.FC<TableProps> = ({ countries, visibleColumns }) => {
             </tr>
           </thead>
           <tbody>
-            {validCountries.map((country, index) => (
-              <tr
-                key={country.name}
-                className={index % 2 === 0 ? 'even' : 'odd'}
-              >
-                {visibleColumnKeys.map((columnKey) => (
-                  <td
-                    key={columnKey}
-                    className={columnDefinitions[columnKey]?.className}
-                  >
-                    {renderCellContent(country, columnKey)}
-                  </td>
-                ))}
-              </tr>
-            ))}
+            {validCountries.map((country, index) => {
+              const rowClass = index % 2 === 0 ? 'even' : 'odd';
+
+              return (
+                <tr key={country.name} className={rowClass}>
+                  {visibleColumnKeys.map((columnKey) => (
+                    <td
+                      key={columnKey}
+                      className={columnDefinitions[columnKey]?.className}
+                    >
+                      {renderCellContent(country, columnKey)}
+                    </td>
+                  ))}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

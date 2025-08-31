@@ -1,15 +1,16 @@
 import { Suspense } from 'react';
 import Table from './components/Table/Table';
 import { ColumnModal } from './components/ColumnModal/ColumnModal';
+import { YearSelector } from './components/YearSelector/YearSelector';
 import { useCO2Countries } from './hooks/useCO2Data';
 import { useColumnSelection } from './hooks/useColumnSelection';
+import { useYearSelection } from './hooks/useYearSelection';
 import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary';
 import { ErrorFallback } from './components/ErrorFallBack/ErrorFallback';
 import { LoadingSpinner } from './components/LoadingSpinner/LoadingSpinner';
 import './App.css';
 
 const CountriesTableContainer = () => {
-  const countries = useCO2Countries();
   const {
     visibleColumns,
     isModalOpen,
@@ -19,8 +20,17 @@ const CountriesTableContainer = () => {
     handleCloseModal,
   } = useColumnSelection();
 
+  const { selectedYear, handleYearChange } = useYearSelection();
+
+  const countries = useCO2Countries(selectedYear);
+
   return (
     <div className="table-container-wrapper">
+      <YearSelector
+        selectedYear={selectedYear}
+        onYearChange={handleYearChange}
+      />
+
       <div className="table-controls">
         <button
           onClick={handleOpenModal}
