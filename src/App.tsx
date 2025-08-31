@@ -2,9 +2,11 @@ import { Suspense } from 'react';
 import Table from './components/Table/Table';
 import { ColumnModal } from './components/ColumnModal/ColumnModal';
 import { YearSelector } from './components/YearSelector/YearSelector';
+import { SearchBar } from './components/SearchBar/SearchBar';
 import { useCO2Countries } from './hooks/useCO2Data';
 import { useColumnSelection } from './hooks/useColumnSelection';
 import { useYearSelection } from './hooks/useYearSelection';
+import { useCountrySearch } from './hooks/useCountrySearch';
 import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary';
 import { ErrorFallback } from './components/ErrorFallBack/ErrorFallback';
 import { LoadingSpinner } from './components/LoadingSpinner/LoadingSpinner';
@@ -24,6 +26,9 @@ const CountriesTableContainer = () => {
 
   const countries = useCO2Countries(selectedYear);
 
+  const { searchTerm, filteredCountries, handleSearchChange } =
+    useCountrySearch(countries);
+
   return (
     <div className="table-container-wrapper">
       <YearSelector
@@ -32,6 +37,11 @@ const CountriesTableContainer = () => {
       />
 
       <div className="table-controls">
+        <SearchBar
+          searchTerm={searchTerm}
+          onSearchChange={handleSearchChange}
+        />
+
         <button
           onClick={handleOpenModal}
           className="column-selector-button"
@@ -41,7 +51,11 @@ const CountriesTableContainer = () => {
         </button>
       </div>
 
-      <Table countries={countries} visibleColumns={visibleColumns} />
+      <Table
+        countries={filteredCountries}
+        visibleColumns={visibleColumns}
+        searchTerm={searchTerm}
+      />
 
       <ColumnModal
         isOpen={isModalOpen}

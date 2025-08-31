@@ -5,6 +5,7 @@ import './Table.css';
 interface TableProps {
   countries: ProcessedCountry[];
   visibleColumns: ColumnConfig;
+  searchTerm?: string;
 }
 
 const formatNumber = (num: number): string => {
@@ -31,7 +32,11 @@ const formatTempChange = (value: number): string => {
   return value.toFixed(3);
 };
 
-export const Table: React.FC<TableProps> = ({ countries, visibleColumns }) => {
+export const Table: React.FC<TableProps> = ({
+  countries,
+  visibleColumns,
+  searchTerm,
+}) => {
   const validCountries = countries.filter(
     (country) => country.name && country.population
   );
@@ -183,7 +188,11 @@ export const Table: React.FC<TableProps> = ({ countries, visibleColumns }) => {
 
       {validCountries.length === 0 && (
         <div className="empty-state">
-          <p>No countries with population data found.</p>
+          {searchTerm ? (
+            <p>No countries found matching &quot;{searchTerm}&quot;.</p>
+          ) : (
+            <p>No countries with population data found.</p>
+          )}
         </div>
       )}
     </div>
