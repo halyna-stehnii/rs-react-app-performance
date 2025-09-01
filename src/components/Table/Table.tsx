@@ -227,9 +227,11 @@ export const Table: React.FC<TableProps> = ({
           <tbody>
             {validCountries.map((country, index) => {
               const rowClass = index % 2 === 0 ? 'even' : 'odd';
+              const rowKey =
+                country.isoCode || country.name || `country-${index}`;
 
               return (
-                <tr key={country.name} className={rowClass}>
+                <tr key={rowKey} className={rowClass}>
                   {visibleColumnKeys.map((columnKey) => (
                     <td
                       key={columnKey}
