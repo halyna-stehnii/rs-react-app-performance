@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import type { ProcessedCountry } from '../types/types';
 
 export type SortField = 'name' | 'population' | 'none';
@@ -45,7 +45,7 @@ export const useSorting = (countries: ProcessedCountry[]) => {
     });
   }, [countries, sortConfig]);
 
-  const handleSort = (field: SortField) => {
+  const handleSort = useCallback((field: SortField) => {
     setSortConfig((prevConfig) => {
       if (prevConfig.field === field) {
         if (prevConfig.direction === 'asc') {
@@ -57,11 +57,11 @@ export const useSorting = (countries: ProcessedCountry[]) => {
         return { field, direction: 'asc' };
       }
     });
-  };
+  }, []);
 
-  const resetSort = () => {
+  const resetSort = useCallback(() => {
     setSortConfig({ field: 'none', direction: 'asc' });
-  };
+  }, []);
 
   return {
     sortedCountries,

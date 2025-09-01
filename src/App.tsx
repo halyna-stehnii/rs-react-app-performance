@@ -1,4 +1,4 @@
-import { Suspense } from 'react';
+import { Suspense, useMemo } from 'react';
 import Table from './components/Table/Table';
 import { ColumnModal } from './components/ColumnModal/ColumnModal';
 import { YearSelector } from './components/YearSelector/YearSelector';
@@ -33,6 +33,17 @@ const CountriesTableContainer = () => {
   const { sortedCountries, sortConfig, handleSort } =
     useSorting(filteredCountries);
 
+  const tableProps = useMemo(
+    () => ({
+      countries: sortedCountries,
+      visibleColumns,
+      searchTerm,
+      sortConfig,
+      onSort: handleSort,
+    }),
+    [sortedCountries, visibleColumns, searchTerm, sortConfig, handleSort]
+  );
+
   return (
     <div className="table-container-wrapper">
       <YearSelector
@@ -55,13 +66,7 @@ const CountriesTableContainer = () => {
         </button>
       </div>
 
-      <Table
-        countries={sortedCountries}
-        visibleColumns={visibleColumns}
-        searchTerm={searchTerm}
-        sortConfig={sortConfig}
-        onSort={handleSort}
-      />
+      <Table {...tableProps} />
 
       <ColumnModal
         isOpen={isModalOpen}

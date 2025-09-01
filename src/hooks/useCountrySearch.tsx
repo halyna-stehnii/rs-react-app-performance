@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import type { ProcessedCountry } from '../types/types';
 
 export const useCountrySearch = (countries: ProcessedCountry[]) => {
@@ -16,13 +16,13 @@ export const useCountrySearch = (countries: ProcessedCountry[]) => {
     });
   }, [countries, searchTerm]);
 
-  const handleSearchChange = (newSearchTerm: string) => {
+  const handleSearchChange = useCallback((newSearchTerm: string) => {
     setSearchTerm(newSearchTerm);
-  };
+  }, []);
 
-  const clearSearch = () => {
+  const clearSearch = useCallback(() => {
     setSearchTerm('');
-  };
+  }, []);
 
   return {
     searchTerm,

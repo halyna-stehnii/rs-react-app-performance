@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { ProcessedCountry, ColumnConfig } from '../../types/types';
 import type { SortField, SortConfig } from '../../hooks/useSorting';
 import './Table.css';
@@ -42,58 +42,67 @@ export const Table: React.FC<TableProps> = ({
   sortConfig,
   onSort,
 }) => {
-  const validCountries = countries.filter(
-    (country) => country.name && country.population
-  );
+  const validCountries = useMemo(() => {
+    return countries.filter((country) => country.name && country.population);
+  }, [countries]);
 
   const columnDefinitions: Record<
     string,
     { header: string; className: string }
-  > = {
-    name: { header: 'Name', className: 'country-name' },
-    isoCode: { header: 'ISO Code', className: 'iso-code' },
-    latestYear: { header: 'Year', className: 'latest-year' },
-    population: { header: 'Population', className: 'population' },
-    co2: { header: 'CO₂', className: 'co2' },
-    co2_per_capita: { header: 'CO₂ Per Capita', className: 'co2-per-capita' },
-    methane: { header: 'Methane', className: 'methane' },
-    oil_co2: { header: 'Oil CO₂', className: 'oil-co2' },
-    temperature_change_from_co2: {
-      header: 'Temp Change',
-      className: 'temp-change',
-    },
-  };
+  > = useMemo(
+    () => ({
+      name: { header: 'Name', className: 'country-name' },
+      isoCode: { header: 'ISO Code', className: 'iso-code' },
+      latestYear: { header: 'Year', className: 'latest-year' },
+      population: { header: 'Population', className: 'population' },
+      co2: { header: 'CO₂', className: 'co2' },
+      co2_per_capita: { header: 'CO₂ Per Capita', className: 'co2-per-capita' },
+      methane: { header: 'Methane', className: 'methane' },
+      oil_co2: { header: 'Oil CO₂', className: 'oil-co2' },
+      temperature_change_from_co2: {
+        header: 'Temp Change',
+        className: 'temp-change',
+      },
+    }),
+    []
+  );
 
-  const getVisibleColumnKeys = () => {
+  const visibleColumnKeys = useMemo(() => {
     return Object.keys(columnDefinitions).filter(
       (key) => visibleColumns[key] === true
     );
-  };
+  }, [columnDefinitions, visibleColumns]);
 
-  const visibleColumnKeys = getVisibleColumnKeys();
+  const getSortableFields = useMemo(
+    (): SortField[] => ['name', 'population'],
+    []
+  );
 
-  const getSortableFields = (): SortField[] => ['name', 'population'];
+  const isSortableColumn = useMemo(() => {
+    return (columnKey: string): columnKey is SortField => {
+      return getSortableFields.includes(columnKey as SortField);
+    };
+  }, [getSortableFields]);
 
-  const isSortableColumn = (columnKey: string): columnKey is SortField => {
-    return getSortableFields().includes(columnKey as SortField);
-  };
+  const getSortIcon = useMemo(() => {
+    function SortIcon(columnKey: string) {
+      if (!isSortableColumn(columnKey) || !sortConfig) {
+        return null;
+      }
 
-  const getSortIcon = (columnKey: string) => {
-    if (!isSortableColumn(columnKey) || !sortConfig) {
-      return null;
+      if (sortConfig.field !== columnKey) {
+        return <span className="sort-icon sort-icon-neutral">↕</span>;
+      }
+
+      return (
+        <span className={`sort-icon sort-icon-active`}>
+          {sortConfig.direction === 'asc' ? '↑' : '↓'}
+        </span>
+      );
     }
 
-    if (sortConfig.field !== columnKey) {
-      return <span className="sort-icon sort-icon-neutral">↕</span>;
-    }
-
-    return (
-      <span className={`sort-icon sort-icon-active`}>
-        {sortConfig.direction === 'asc' ? '↑' : '↓'}
-      </span>
-    );
-  };
-
+    return SortIcon;
+  }, [sortConfig, isSortableColumn]);
   const handleColumnClick = (columnKey: string) => {
     if (isSortableColumn(columnKey) && onSort) {
       onSort(columnKey);
