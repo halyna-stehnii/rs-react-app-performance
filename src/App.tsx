@@ -1,4 +1,4 @@
-import { Suspense, useMemo } from 'react';
+import React, { Suspense, useMemo } from 'react';
 import Table from './components/Table/Table';
 import { ColumnModal } from './components/ColumnModal/ColumnModal';
 import { YearSelector } from './components/YearSelector/YearSelector';
@@ -79,12 +79,14 @@ const CountriesTableContainer = () => {
   );
 };
 
+const MemoizedCountriesTableContainer = React.memo(CountriesTableContainer);
+
 function App() {
   return (
     <div className="app">
       <ErrorBoundary fallback={(error) => <ErrorFallback error={error} />}>
         <Suspense fallback={<LoadingSpinner />}>
-          <CountriesTableContainer />
+          <MemoizedCountriesTableContainer />
         </Suspense>
       </ErrorBoundary>
     </div>

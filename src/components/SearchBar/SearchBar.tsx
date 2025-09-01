@@ -7,42 +7,46 @@ interface SearchBarProps {
   placeholder?: string;
 }
 
-export const SearchBar: React.FC<SearchBarProps> = ({
-  searchTerm,
-  onSearchChange,
-  placeholder = 'Search countries by name...',
-}) => {
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    onSearchChange(event.target.value);
-  };
+export const SearchBar: React.FC<SearchBarProps> = React.memo(
+  ({
+    searchTerm,
+    onSearchChange,
+    placeholder = 'Search countries by name...',
+  }) => {
+    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      onSearchChange(event.target.value);
+    };
 
-  const handleClear = () => {
-    onSearchChange('');
-  };
+    const handleClear = () => {
+      onSearchChange('');
+    };
 
-  return (
-    <div className="search-bar">
-      <div className="search-input-container">
-        <input
-          type="text"
-          value={searchTerm}
-          onChange={handleInputChange}
-          placeholder={placeholder}
-          className="search-input"
-        />
-        {searchTerm && (
-          <button
-            onClick={handleClear}
-            className="search-clear-button"
-            type="button"
-            aria-label="Clear search"
-          >
-            ×
-          </button>
-        )}
+    return (
+      <div className="search-bar">
+        <div className="search-input-container">
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={handleInputChange}
+            placeholder={placeholder}
+            className="search-input"
+          />
+          {searchTerm && (
+            <button
+              onClick={handleClear}
+              className="search-clear-button"
+              type="button"
+              aria-label="Clear search"
+            >
+              ×
+            </button>
+          )}
+        </div>
       </div>
-    </div>
-  );
-};
+    );
+  }
+);
 
-export default SearchBar;
+SearchBar.displayName = 'SearchBar';
+
+export default React.memo(SearchBar);

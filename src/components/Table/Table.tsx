@@ -258,4 +258,4 @@ export const Table: React.FC<TableProps> = ({
   );
 };
 
-export default Table;
+export default React.memo(Table);
